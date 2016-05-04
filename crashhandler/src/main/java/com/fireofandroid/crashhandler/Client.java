@@ -12,7 +12,7 @@ public class Client {
 
     private static Socket sSocket;
 
-    public Client() {
+    private Client() {
     }
 
     public static void sendMessage(String msg, String host, int port) {
