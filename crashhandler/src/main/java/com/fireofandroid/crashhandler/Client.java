@@ -2,40 +2,45 @@ package com.fireofandroid.crashhandler;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class Client {
+public final class Client {
 
     private static final String TAG = "Client";
 
     private static Socket sSocket;
 
     private Client() {
+
     }
 
-    public static void sendMessage(String msg, String host, int port) {
+    public static void sendMessage(CrashMsg msg, final String host, final int port) {
 
-        new AsyncTask<String, Void, Void>() {
+        new AsyncTask<CrashMsg, Void, Void>() {
             @Override
-            protected Void doInBackground(String... params) {
+            protected Void doInBackground(CrashMsg... params) {
 
                 try {
-                    sSocket = new Socket(params[0], Integer.parseInt(params[1]));
-                    Log.v(TAG, "sSocket: " + sSocket.toString());
+                    sSocket = null;
+                    sSocket = new Socket(host, port);
+                    Log.v(TAG, "create new socket: " + sSocket.toString());
 
-                    OutputStreamWriter writer = new OutputStreamWriter(sSocket.getOutputStream());
-                    writer.write(params[2]);
-                    writer.flush();
-                    writer.close();
-                    sSocket.close();
+                    ObjectOutputStream oos = new ObjectOutputStream(
+                            new BufferedOutputStream(sSocket.getOutputStream()));
+                    oos.writeObject(params[0]);
+                    oos.flush();
+                    oos.close();//close the returned OutputStream will close the associated socket.
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.e("Client", e.toString());
+                    Log.e(TAG, e.toString());
                 }
+
                 return null;
             }
-        }.execute(host, String.valueOf(port), msg);
+        }.execute(msg);
     }
 }

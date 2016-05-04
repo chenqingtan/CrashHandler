@@ -40,14 +40,16 @@ public class CrashHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
         Log.e(TAG, ex.getMessage());
-        String message =
-                getCurrentDate() + "-"
-                + "E-"
-                + "Thread:" + thread.getName() + "(" + thread.getId() + ")-"
-                + sContext.getPackageName() + "."
+        CrashMsg message = new CrashMsg(
+                getCurrentDate(),
+                'E',
+                "Thread:" + thread.getName() + "(" + thread.getId() + ")",
+                sContext.getPackageName() + "."
                 + ex.getCause().getStackTrace()[0].getFileName() + ":"
-                + ex.getCause().getStackTrace()[0].getLineNumber() + "-"
-                + ex.getCause().getMessage();
+                + "Line " + ex.getCause().getStackTrace()[0].getLineNumber() + "-"
+                + ex.getCause().getMessage(),
+                null);
+
         Client.sendMessage(message, sHost, sPort);
     }
 
@@ -59,14 +61,16 @@ public class CrashHandler implements UncaughtExceptionHandler {
     }
 
     public static void reportException(Exception exception) {
-        String message =
-                getCurrentDate() + "-"
-                + "M-"
-                + "Thread:" + Thread.currentThread().getName() + "(" + Thread.currentThread().getId() + ")-"
-                + sContext.getPackageName() + "."
+        CrashMsg message = new CrashMsg(
+                getCurrentDate(),
+                'M',
+                "Thread:" + Thread.currentThread().getName() + "(" + Thread.currentThread().getId() + ")",
+                sContext.getPackageName() + "."
                 + exception.getStackTrace()[0].getFileName() + ":"
-                + exception.getStackTrace()[0].getLineNumber() + "-"
-                + exception.getMessage();
+                + "Line " + exception.getStackTrace()[0].getLineNumber() + "-"
+                + exception.getMessage(),
+                null);
+
         Client.sendMessage(message, sHost, sPort);
     }
 }
