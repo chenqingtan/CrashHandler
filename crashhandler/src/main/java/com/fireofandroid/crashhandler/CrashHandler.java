@@ -40,13 +40,18 @@ public class CrashHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
         Log.e(TAG, ex.getMessage());
+        StackTraceElement stackTraceElement = ex.getCause().getStackTrace()[0];
+        String className = stackTraceElement.getClassName();
+        int pos = className.lastIndexOf('.');
+        String packageName = className.substring(0, pos);
         CrashMsg message = new CrashMsg(
                 getCurrentDate(),
                 'E',
                 "Thread:" + thread.getName() + "(" + thread.getId() + ")",
-                sContext.getPackageName() + "."
-                + ex.getCause().getStackTrace()[0].getFileName() + ":"
-                + "Line " + ex.getCause().getStackTrace()[0].getLineNumber() + "-"
+                packageName + "."
+                + stackTraceElement.getFileName() + ":"
+                + stackTraceElement.getMethodName() + "("
+                + "Line " + stackTraceElement.getLineNumber() + ")-"
                 + ex.getCause().getMessage(),
                 null);
 
@@ -61,13 +66,16 @@ public class CrashHandler implements UncaughtExceptionHandler {
     }
 
     public static void reportException(Exception exception) {
+        Log.v(TAG, exception.getMessage());
+        StackTraceElement stackTraceElement = exception.getStackTrace()[0];
         CrashMsg message = new CrashMsg(
                 getCurrentDate(),
                 'M',
                 "Thread:" + Thread.currentThread().getName() + "(" + Thread.currentThread().getId() + ")",
                 sContext.getPackageName() + "."
-                + exception.getStackTrace()[0].getFileName() + ":"
-                + "Line " + exception.getStackTrace()[0].getLineNumber() + "-"
+                + stackTraceElement.getFileName() + ":"
+                + stackTraceElement.getMethodName() + "("
+                + "Line " + stackTraceElement.getLineNumber() + ")-"
                 + exception.getMessage(),
                 null);
 
